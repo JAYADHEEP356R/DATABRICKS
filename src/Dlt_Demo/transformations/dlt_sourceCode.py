@@ -18,6 +18,8 @@ def bronze_orders():
         .csv("/Volumes/workspace/default/autoloads/raw_data/orders_batch1.csv")
     )
 
+    
+
 # ---------------------------
 # SILVER TABLE (CLEANING)
 # ---------------------------
@@ -34,6 +36,7 @@ def silver_orders():
         .withColumn("order_amount", col("order_amount").cast("double"))
         .filter(col("order_status").isNotNull())
     )
+
 
 @dlt.view(name="silver_orderid_view")
 def silver_orderid_view():

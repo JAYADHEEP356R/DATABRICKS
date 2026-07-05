@@ -1,0 +1,1108 @@
+{
+  "datasets": [
+    {
+      "name": "9f810653",
+      "displayName": "fact_votes",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.bronze_layer.fact_votes",
+        "dimensions": [
+          {
+            "name": "Constituency",
+            "expr": "source.Constituency",
+            "displayName": "Constituency"
+          },
+          {
+            "name": "Year",
+            "expr": "source.Year",
+            "displayName": "Year"
+          },
+          {
+            "name": "Party",
+            "expr": "source.Party",
+            "displayName": "Party"
+          },
+          {
+            "name": "Vote_Percent",
+            "expr": "source.Vote_Percent",
+            "displayName": "Vote Percent"
+          }
+        ],
+        "measures": [
+          {
+            "name": "total_votes",
+            "expr": "SUM(source.Votes)",
+            "displayName": "Total Votes"
+          },
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "4d94d1c7",
+      "displayName": "fact_results",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.bronze_layer.fact_results",
+        "dimensions": [
+          {
+            "name": "Constituency",
+            "expr": "source.Constituency",
+            "displayName": "Constituency"
+          },
+          {
+            "name": "Year",
+            "expr": "source.Year",
+            "displayName": "Year"
+          },
+          {
+            "name": "Winner",
+            "expr": "source.Winner",
+            "displayName": "Winner"
+          },
+          {
+            "name": "Winner_Party",
+            "expr": "source.Winner_Party",
+            "displayName": "Winner Party"
+          },
+          {
+            "name": "Runner_up",
+            "expr": "source.Runner_up",
+            "displayName": "Runner Up"
+          },
+          {
+            "name": "RunnerUp_Party",
+            "expr": "source.RunnerUp_Party",
+            "displayName": "Runner Up Party"
+          },
+          {
+            "name": "Margin",
+            "expr": "source.Margin",
+            "displayName": "Margin"
+          },
+          {
+            "name": "Margin_Category",
+            "expr": "source.Margin_Category",
+            "displayName": "Margin Category"
+          }
+        ],
+        "measures": [
+          {
+            "name": "total_constituencies",
+            "expr": "COUNT(DISTINCT source.Constituency)",
+            "displayName": "Total Constituencies"
+          },
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset",
+            "displayName": "Count"
+          },
+          {
+            "name": "close_contests",
+            "expr": "SUM(CASE WHEN source.Margin_Category = 'Close' THEN 1 ELSE 0 END)",
+            "displayName": "Close Contests"
+          },
+          {
+            "name": "close_pct",
+            "expr": "MEASURE(close_contests) * 100.0 / MEASURE(count)",
+            "displayName": "Close Contests %"
+          }
+        ]
+      }
+    },
+    {
+      "name": "6d9d92cf",
+      "displayName": "dim_year",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.bronze_layer.dim_year",
+        "dimensions": [
+          {
+            "name": "Year",
+            "expr": "source.Year",
+            "displayName": "Year"
+          },
+          {
+            "name": "ElectionType",
+            "expr": "source.ElectionType",
+            "displayName": "Election Type"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ab916cfc",
+      "displayName": "dim_constituency",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.bronze_layer.dim_constituency",
+        "dimensions": [
+          {
+            "name": "Constituency",
+            "expr": "source.Constituency",
+            "displayName": "Constituency"
+          },
+          {
+            "name": "ReservationType",
+            "expr": "source.ReservationType",
+            "displayName": "Reservation Type"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "d364add1",
+      "displayName": "dim_party",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.bronze_layer.dim_party",
+        "dimensions": [
+          {
+            "name": "PartyName",
+            "expr": "source.PartyName",
+            "displayName": "Party Name"
+          },
+          {
+            "name": "Alliance",
+            "expr": "source.Alliance",
+            "displayName": "Alliance"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "results_with_alliance",
+      "displayName": "results_with_alliance",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT \n  fr.Constituency,\n  fr.Year,\n  fr.Winner,\n  fr.Winner_Party,\n  fr.Runner_up,\n  fr.RunnerUp_Party,\n  fr.Margin,\n  fr.Margin_Category,\n  dp.Alliance as Winner_Alliance\nFROM workspace.bronze_layer.fact_results fr LEFT JOIN workspace.bronze_layer.dim_party dp ON fr.Winner_Party = dp.PartyName\n",
+        "dimensions": [
+          {
+            "name": "Constituency",
+            "expr": "Constituency",
+            "displayName": "Constituency"
+          },
+          {
+            "name": "Year",
+            "expr": "Year",
+            "displayName": "Year"
+          },
+          {
+            "name": "Winner",
+            "expr": "Winner",
+            "displayName": "Winner"
+          },
+          {
+            "name": "Winner_Party",
+            "expr": "Winner_Party",
+            "displayName": "Winner Party"
+          },
+          {
+            "name": "Runner_up",
+            "expr": "Runner_up",
+            "displayName": "Runner Up"
+          },
+          {
+            "name": "RunnerUp_Party",
+            "expr": "RunnerUp_Party",
+            "displayName": "Runner Up Party"
+          },
+          {
+            "name": "Margin",
+            "expr": "Margin",
+            "displayName": "Margin"
+          },
+          {
+            "name": "Margin_Category",
+            "expr": "Margin_Category",
+            "displayName": "Margin Category"
+          },
+          {
+            "name": "Winner_Alliance",
+            "expr": "Winner_Alliance",
+            "displayName": "Winner Alliance"
+          }
+        ],
+        "measures": [
+          {
+            "name": "constituencies_won",
+            "expr": "COUNT(DISTINCT Constituency)",
+            "displayName": "Constituencies Won"
+          },
+          {
+            "name": "total_contests",
+            "expr": "COUNT(*)",
+            "displayName": "Total Contests"
+          }
+        ]
+      }
+    },
+    {
+      "name": "votes_with_alliance",
+      "displayName": "votes_with_alliance",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT \n  fv.Constituency,\n  fv.Year,\n  fv.Party,\n  fv.Votes,\n  fv.Vote_Percent,\n  dp.Alliance\nFROM workspace.bronze_layer.fact_votes fv LEFT JOIN workspace.bronze_layer.dim_party dp ON fv.Party = dp.PartyName\n",
+        "dimensions": [
+          {
+            "name": "Constituency",
+            "expr": "Constituency",
+            "displayName": "Constituency"
+          },
+          {
+            "name": "Year",
+            "expr": "Year",
+            "displayName": "Year"
+          },
+          {
+            "name": "Party",
+            "expr": "Party",
+            "displayName": "Party"
+          },
+          {
+            "name": "Alliance",
+            "expr": "Alliance",
+            "displayName": "Alliance"
+          }
+        ],
+        "measures": [
+          {
+            "name": "total_votes",
+            "expr": "SUM(Votes)",
+            "displayName": "Total Votes"
+          },
+          {
+            "name": "avg_vote_percent",
+            "expr": "AVG(Vote_Percent)",
+            "displayName": "Average Vote Percent"
+          }
+        ]
+      }
+    },
+    {
+      "name": "top_10_close",
+      "displayName": "Top 10 Closest Contests",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT \n  Constituency,\n  Year,\n  Winner,\n  Winner_Party,\n  Margin\nFROM workspace.bronze_layer.fact_results WHERE Margin IS NOT NULL ORDER BY Margin ASC LIMIT 10\n",
+        "dimensions": [
+          {
+            "name": "Constituency",
+            "expr": "Constituency"
+          },
+          {
+            "name": "Year",
+            "expr": "Year"
+          },
+          {
+            "name": "Winner",
+            "expr": "Winner"
+          },
+          {
+            "name": "Winner_Party",
+            "expr": "Winner_Party"
+          },
+          {
+            "name": "Margin",
+            "expr": "Margin"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "alliance_votes_by_year",
+      "displayName": "Alliance Votes by Year",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT \n  fv.Year,\n  fv.Constituency,\n  fv.Party,\n  fv.Votes,\n  dp.Alliance\nFROM workspace.bronze_layer.fact_votes fv LEFT JOIN workspace.bronze_layer.dim_party dp ON fv.Party = dp.PartyName\n",
+        "dimensions": [
+          {
+            "name": "Year",
+            "expr": "Year",
+            "displayName": "Year"
+          },
+          {
+            "name": "Alliance",
+            "expr": "Alliance",
+            "displayName": "Alliance"
+          }
+        ],
+        "measures": [
+          {
+            "name": "alliance_votes",
+            "expr": "SUM(Votes)",
+            "displayName": "Alliance Votes",
+            "comment": "Total votes secured by alliance"
+          }
+        ]
+      }
+    },
+    {
+      "name": "votes_by_year",
+      "displayName": "Votes by Year (State Level)",
+      "config": {
+        "version": "1.1",
+        "source": "SELECT \n  Year,\n  Constituency,\n  SUM(Votes) as constituency_votes\nFROM workspace.bronze_layer.fact_votes GROUP BY Year, Constituency\n",
+        "dimensions": [
+          {
+            "name": "Year",
+            "expr": "Year",
+            "displayName": "Year"
+          },
+          {
+            "name": "Constituency",
+            "expr": "Constituency",
+            "displayName": "Constituency"
+          }
+        ],
+        "measures": [
+          {
+            "name": "total_votes_state",
+            "expr": "SUM(constituency_votes)",
+            "displayName": "Total Votes (State Level)",
+            "comment": "Sum of constituency-level vote totals to get state-level total without double-counting"
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "afeda3d2",
+      "displayName": "Main Dashboard",
+      "layout": [
+        {
+          "widget": {
+            "name": "alliance_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "alliance_votes_by_year",
+                  "fields": [
+                    {
+                      "name": "Year",
+                      "expression": "`Year`"
+                    },
+                    {
+                      "name": "Alliance",
+                      "expression": "`Alliance`"
+                    },
+                    {
+                      "name": "measure(alliance_votes)",
+                      "expression": "MEASURE(`alliance_votes`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "title": "Alliance Comparison by Year",
+                "showTitle": true
+              },
+              "version": 3,
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Alliance",
+                  "axis": {
+                    "title": "Alliance"
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(alliance_votes)",
+                  "axis": {
+                    "title": "Total Votes"
+                  },
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "hideGroupSeparator": false,
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    }
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "Year",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "party_trend_line",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "9f810653",
+                  "fields": [
+                    {
+                      "name": "Party",
+                      "expression": "`Party`"
+                    },
+                    {
+                      "name": "Year",
+                      "expression": "`Year`"
+                    },
+                    {
+                      "name": "measure(total_votes)",
+                      "expression": "MEASURE(`total_votes`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Party Vote Share Trend (2016-2021)",
+                "showTitle": true
+              },
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "Year",
+                  "axis": {
+                    "title": "Year"
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(total_votes)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "hideGroupSeparator": false,
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    }
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "Party",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "margin_histogram",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "4d94d1c7",
+                  "fields": [
+                    {
+                      "name": "Margin_Category",
+                      "expression": "`Margin_Category`"
+                    },
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Margin Distribution",
+                "showTitle": true
+              },
+              "mark": {
+                "colors": [
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 2
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 3
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 4
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 5
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 6
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 7
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 8
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 9
+                  },
+                  {
+                    "themeColorType": "visualizationColors",
+                    "position": 10
+                  }
+                ]
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Margin_Category",
+                  "axis": {
+                    "title": "Margin Category"
+                  },
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "hideGroupSeparator": false,
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    }
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top_close_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_10_close",
+                  "fields": [
+                    {
+                      "name": "Constituency",
+                      "expression": "`Constituency`"
+                    },
+                    {
+                      "name": "Year",
+                      "expression": "`Year`"
+                    },
+                    {
+                      "name": "Winner",
+                      "expression": "`Winner`"
+                    },
+                    {
+                      "name": "Winner_Party",
+                      "expression": "`Winner_Party`"
+                    },
+                    {
+                      "name": "Margin",
+                      "expression": "`Margin`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Top 10 Closest Contests",
+                "showTitle": true
+              },
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "Constituency"
+                  },
+                  {
+                    "fieldName": "Year"
+                  },
+                  {
+                    "fieldName": "Winner"
+                  },
+                  {
+                    "fieldName": "Winner_Party"
+                  },
+                  {
+                    "fieldName": "Margin",
+                    "format": {
+                      "type": "number-plain",
+                      "abbreviation": "none",
+                      "hideGroupSeparator": false,
+                      "decimalPlaces": {
+                        "type": "exact",
+                        "places": 0
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 9,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_close_contests_final",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "4d94d1c7",
+                  "fields": [
+                    {
+                      "name": "measure(close_pct)",
+                      "expression": "MEASURE(`close_pct`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Incident of Close Contests (2016-2021)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(close_pct)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "hideGroupSeparator": false,
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 2
+                    }
+                  },
+                  "formatTemplate": "{{ @formatted }}%"
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_votes_2016",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "votes_by_year",
+                  "fields": [
+                    {
+                      "name": "measure(total_votes_state)",
+                      "expression": "MEASURE(`total_votes_state`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`Year` = 2016"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Votes Cast in 2016",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_votes_state)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "hideGroupSeparator": false,
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_votes_2021",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "votes_by_year",
+                  "fields": [
+                    {
+                      "name": "measure(total_votes_state)",
+                      "expression": "MEASURE(`total_votes_state`)"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`Year` = 2021"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Votes Cast in 2021",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_votes_state)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "hideGroupSeparator": false,
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "global_filters",
+      "displayName": "Global Filters",
+      "layout": [
+        {
+          "widget": {
+            "name": "year_filter",
+            "queries": [
+              {
+                "name": "dashboards/01f15b8bf79c12908090bde61b2c01b6/datasets/01f15b8c2c5e1aab96f3d0e7556b789b_Year",
+                "query": {
+                  "datasetName": "6d9d92cf",
+                  "fields": [
+                    {
+                      "name": "Year",
+                      "expression": "`Year`"
+                    },
+                    {
+                      "name": "Year_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Year",
+                "showTitle": true
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "Year",
+                    "queryName": "dashboards/01f15b8bf79c12908090bde61b2c01b6/datasets/01f15b8c2c5e1aab96f3d0e7556b789b_Year"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "party_filter",
+            "queries": [
+              {
+                "name": "dashboards/01f15b8bf79c12908090bde61b2c01b6/datasets/01f15b8c48561e8ab7a5c0cd2d7a5775_PartyName",
+                "query": {
+                  "datasetName": "d364add1",
+                  "fields": [
+                    {
+                      "name": "PartyName",
+                      "expression": "`PartyName`"
+                    },
+                    {
+                      "name": "PartyName_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Party",
+                "showTitle": true
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "PartyName",
+                    "queryName": "dashboards/01f15b8bf79c12908090bde61b2c01b6/datasets/01f15b8c48561e8ab7a5c0cd2d7a5775_PartyName"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "alliance_filter",
+            "queries": [
+              {
+                "name": "dashboards/01f15b8bf79c12908090bde61b2c01b6/datasets/01f15b8c48561e8ab7a5c0cd2d7a5775_Alliance",
+                "query": {
+                  "datasetName": "d364add1",
+                  "fields": [
+                    {
+                      "name": "Alliance",
+                      "expression": "`Alliance`"
+                    },
+                    {
+                      "name": "Alliance_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Alliance",
+                "showTitle": true
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "Alliance",
+                    "queryName": "dashboards/01f15b8bf79c12908090bde61b2c01b6/datasets/01f15b8c48561e8ab7a5c0cd2d7a5775_Alliance"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "constituency_filter",
+            "queries": [
+              {
+                "name": "dashboards/01f15b8bf79c12908090bde61b2c01b6/datasets/01f15b8c3b6f1c04baa919a410b968dc_Constituency",
+                "query": {
+                  "datasetName": "ab916cfc",
+                  "fields": [
+                    {
+                      "name": "Constituency",
+                      "expression": "`Constituency`"
+                    },
+                    {
+                      "name": "Constituency_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Constituency",
+                "showTitle": true
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "Constituency",
+                    "queryName": "dashboards/01f15b8bf79c12908090bde61b2c01b6/datasets/01f15b8c3b6f1c04baa919a410b968dc_Constituency"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
